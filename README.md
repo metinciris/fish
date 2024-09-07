@@ -63,5 +63,3 @@ pip install opencv-python numpy pillow
 Bu proje MIT Lisansı ile lisanslanmıştır. Detaylar için [LICENSE](./LICENSE) dosyasına göz atabilirsiniz.
 
 - **Lisans:** Proje MIT lisansı ile lisanslanmıştır.
-
-Bu dosyayı projenize ekleyip GitHub'da paylaşabilirsiniz!
