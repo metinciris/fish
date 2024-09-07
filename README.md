@@ -1,11 +1,11 @@
-# Signal Detection Project
+# HER2 Signal Detection Project
 
-Bu Python projesi, görüntülerdeki kırmızı ve yeşil sinyalleri tespit eder, bu sinyalleri renkli noktalarla işaretler ve kırmızı/yeşil sinyal oranını hesaplar. Sinyallerin merkezindeki parlaklığa göre tespit yapılır ve gereksiz renkler hariç tutulur.
+Bu Python projesi, HER2 sinyallerini ve referans sinyallerini görüntülerde tespit eder, bu sinyalleri renkli noktalarla işaretler ve HER2 oranını hesaplar. Bu araç manuel sayım ile kontrol edilmeli ve **tanı amacıyla kullanılmamalıdır**.
 
 ## Özellikler
-- Kırmızı ve yeşil sinyalleri renk tonlarına göre tespit eder.
-- Kırmızı sinyalleri sarı noktalarla, yeşil sinyalleri ise mavi noktalarla işaretler.
-- Kırmızı/yeşil sinyal oranını hesaplar ve görüntüye yazar.
+- HER2 ve referans sinyalleri renk tonlarına göre tespit eder.
+- HER2 sinyallerini sarı noktalarla, referans sinyalleri ise mavi noktalarla işaretler.
+- HER2/Referans sinyal oranını hesaplar ve görüntüye yazar.
 - Gereksiz renkler hariç tutularak tespit hassasiyeti arttırılır.
 - Çıktı görüntü dosyası, orijinal görüntüyle aynı klasöre, orijinal dosya adının yanına `_count_output` eklenerek kaydedilir.
 
@@ -30,25 +30,27 @@ pip install opencv-python numpy
    Proje dizininde Python dosyasını çalıştırın:
 
    ```bash
-   python signal_detection.py
+   python her2_signal_detection.py
    ```
 
 2. **Resim Seçin:**
-   Program çalıştığında bir dosya seçim penceresi açılır. Taranacak olan görüntüyü seçin.
+   Program çalıştığında bir dosya seçim penceresi açılır. Taranacak olan HER2 sinyallerini içeren görüntüyü seçin.
 
 3. **Sonuçlar:**
-   - Kırmızı ve yeşil sinyaller tespit edilir ve uygun renklerle işaretlenir.
-   - Sinyal sayıları ve kırmızı/yeşil oranı görüntü üzerine yazılır.
+   - HER2 ve referans sinyalleri tespit edilir ve uygun renklerle işaretlenir.
+   - HER2 sinyalleri sarı, referans sinyalleri mavi noktalarla gösterilir.
+   - Sinyal sayıları ve HER2/Referans oranı görüntü üzerine yazılır.
    - Çıktı dosyası, orijinal resmin bulunduğu klasöre `*_count_output` eklenerek kaydedilir.
+
+4. **Manuel Kontrol:**
+   Sonuçlar **manuel sayma ile doğrulanmalıdır**. Bu araç yalnızca sayım kolaylığı sağlamak için geliştirilmiştir ve **tanı amaçlı kullanılmamalıdır**.
 
 ## Örnek Çıktı
 
-- Kırmızı sinyaller: 35
-- Yeşil sinyaller: 20
-- Kırmızı/Yeşil Oranı: 1.75
+- HER2 sinyalleri: 35
+- Referans sinyalleri: 20
+- HER2/Referans Oranı: 1.75
 
 ## Lisans
 
 Bu proje MIT Lisansı ile lisanslanmıştır. Detaylar için [LICENSE](./LICENSE) dosyasına göz atabilirsiniz.
-
-
