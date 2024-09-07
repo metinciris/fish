@@ -3,6 +3,7 @@ import numpy as np
 import os
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
+from PIL import ImageFont, ImageDraw, Image
 
 # Resim seçme fonksiyonu
 def select_image():
@@ -17,36 +18,19 @@ def hex_to_bgr(hex_color):
     return (rgb[2], rgb[1], rgb[0])  # BGR formatına çevirme
 
 # Kırmızı ve yeşil renkler için hedef tonlar (BGR formatında)
-red_target_colors = [
-    hex_to_bgr('#EF2848'),  # Kırmızı tonları
+her2_target_colors = [
+    hex_to_bgr('#EF2848'),  # HER2 sinyalleri için kırmızı tonları
     hex_to_bgr('#FA1C49'),
     hex_to_bgr('#C0203E'),
-    hex_to_bgr('#E91D49'),
-    hex_to_bgr('#971B38'),
-    hex_to_bgr('#971E57'),
-    hex_to_bgr('#9D1C39')
+    hex_to_bgr('#E91D49')
 ]
 
-# Yeni yeşil tonlar eklendi
-green_target_colors = [
-    hex_to_bgr('#47B03B'),  # Yeşil tonları
+cep17_target_colors = [
+    hex_to_bgr('#47B03B'),  # CEP17 sinyalleri için yeşil tonları
     hex_to_bgr('#3E8E3E'),
     hex_to_bgr('#68AB40'),
     hex_to_bgr('#42FF3A'),
-    hex_to_bgr('#55D74A'),
-    hex_to_bgr('#496152'),
-    hex_to_bgr('#C7F589'),  # Yeni yeşil tonları
-    hex_to_bgr('#A3F471'),
-    hex_to_bgr('#9EE76B')
-]
-
-# Gereksiz kırmızı renkler (ortası ışıklı olmayanlar)
-excluded_red_colors = [
-    hex_to_bgr('#782141'), 
-    hex_to_bgr('#7F2738'),
-    hex_to_bgr('#721F49'),  # Eklenen gereksiz kırmızı tonlar
-    hex_to_bgr('#7E204C'),
-    hex_to_bgr('#70203E')
+    hex_to_bgr('#55D74A')
 ]
 
 # Resmi yükleme
@@ -61,63 +45,83 @@ else:
     image_name, image_ext = os.path.splitext(image_filename)
 
     # Maske oluşturma
-    red_mask = np.zeros(image.shape[:2], dtype="uint8")  # Başlangıçta boş bir kırmızı maske
-    green_mask = np.zeros(image.shape[:2], dtype="uint8")  # Başlangıçta boş bir yeşil maske
+    her2_mask = np.zeros(image.shape[:2], dtype="uint8")  # Başlangıçta boş bir HER2 maske
+    cep17_mask = np.zeros(image.shape[:2], dtype="uint8")  # Başlangıçta boş bir CEP17 maske
 
-    # Kırmızı tonları için maske oluşturma (gereksiz tonları hariç tutma)
-    for target_color in red_target_colors:
-        if target_color not in excluded_red_colors:
-            lower_bound = np.array([max(0, c - 30) for c in target_color], dtype="uint8")  # Alt sınır
-            upper_bound = np.array([min(255, c + 30) for c in target_color], dtype="uint8")  # Üst sınır
-            mask = cv2.inRange(image, lower_bound, upper_bound)
-            red_mask = cv2.bitwise_or(red_mask, mask)  # Maskeleri birleştir
-
-    # Yeşil tonları için maske oluşturma (yeni tonlar dahil)
-    for target_color in green_target_colors:
+    # HER2 tonları için maske oluşturma
+    for target_color in her2_target_colors:
         lower_bound = np.array([max(0, c - 30) for c in target_color], dtype="uint8")  # Alt sınır
         upper_bound = np.array([min(255, c + 30) for c in target_color], dtype="uint8")  # Üst sınır
         mask = cv2.inRange(image, lower_bound, upper_bound)
-        green_mask = cv2.bitwise_or(green_mask, mask)  # Maskeleri birleştir
+        her2_mask = cv2.bitwise_or(her2_mask, mask)  # Maskeleri birleştir
 
-    # Kırmızı sinyallerin yerlerini bulma
-    red_contours, _ = cv2.findContours(red_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    red_signal_count = 0
-    for cnt in red_contours:
+    # CEP17 tonları için maske oluşturma
+    for target_color in cep17_target_colors:
+        lower_bound = np.array([max(0, c - 30) for c in target_color], dtype="uint8")  # Alt sınır
+        upper_bound = np.array([min(255, c + 30) for c in target_color], dtype="uint8")  # Üst sınır
+        mask = cv2.inRange(image, lower_bound, upper_bound)
+        cep17_mask = cv2.bitwise_or(cep17_mask, mask)  # Maskeleri birleştir
+
+    # HER2 sinyallerinin yerlerini bulma
+    her2_contours, _ = cv2.findContours(her2_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    her2_signal_count = 0
+    for cnt in her2_contours:
         area = cv2.contourArea(cnt)
         if area > 5:  # Gürültüyü önlemek için minimum alan kontrolü
             x, y, w, h = cv2.boundingRect(cnt)
-            cv2.circle(image, (x + w // 2, y + h // 2), 1, (0, 255, 255), -1)  # Sarı 1 piksel nokta (Kırmızı için)
-            red_signal_count += 1
+            cv2.circle(image, (x + w // 2, y + h // 2), 1, (0, 255, 255), -1)  # Sarı 1 piksel nokta (HER2 için)
+            her2_signal_count += 1
 
-    # Yeşil sinyallerin yerlerini bulma
-    green_contours, _ = cv2.findContours(green_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    green_signal_count = 0
-    for cnt in green_contours:
+    # CEP17 sinyallerinin yerlerini bulma
+    cep17_contours, _ = cv2.findContours(cep17_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cep17_signal_count = 0
+    for cnt in cep17_contours:
         area = cv2.contourArea(cnt)
         if area > 5:  # Gürültüyü önlemek için minimum alan kontrolü
             x, y, w, h = cv2.boundingRect(cnt)
-            cv2.circle(image, (x + w // 2, y + h // 2), 1, (255, 0, 0), -1)  # Mavi 1 piksel nokta (Yeşil için)
-            green_signal_count += 1
+            cv2.circle(image, (x + w // 2, y + h // 2), 1, (255, 0, 0), -1)  # Mavi 1 piksel nokta (CEP17 için)
+            cep17_signal_count += 1
 
     # Oran hesaplama
-    if green_signal_count > 0:
-        ratio = red_signal_count / green_signal_count
+    if cep17_signal_count > 0:
+        ratio = her2_signal_count / cep17_signal_count
     else:
         ratio = 0
 
+    # Grup belirleme
+    if ratio >= 2.0 and her2_signal_count >= 4.0:
+        group = "Grup 1: HER2/CEP17 oranı ≥ 2.0; ≥ 4.0 HER2 sinyali/hücre"
+    elif ratio >= 2.0 and her2_signal_count < 4.0:
+        group = "Grup 2: HER2/CEP17 oranı ≥ 2.0; < 4.0 HER2 sinyali/hücre"
+    elif ratio < 2.0 and her2_signal_count >= 6.0:
+        group = "Grup 3: HER2/CEP17 oranı < 2.0; ≥ 6.0 HER2 sinyali/hücre"
+    elif ratio < 2.0 and 4.0 <= her2_signal_count < 6.0:
+        group = "Grup 4: HER2/CEP17 oranı < 2.0; ≥ 4.0 ve < 6.0 HER2 sinyali/hücre"
+    else:
+        group = "Grup 5: HER2/CEP17 oranı < 2.0; < 4.0 HER2 sinyali/hücre"
+
+    # Görüntüyü Pillow ile işlemek
+    image_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(image_pil)
+    font = ImageFont.truetype("arial.ttf", 20)  # Türkçe karakter desteği için Arial yazı tipi
+
+    # Metinlerin üst üste binmemesi için konumları ayarlayın
+    text_padding = 30
+
     # Sonuçları görüntüye yazdırma
-    image_height = image.shape[0]
-    cv2.putText(image, f'Kirmizi Sinyal: {red_signal_count}', (10, image_height - 80),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-    cv2.putText(image, f'Yesil Sinyal: {green_signal_count}', (10, image_height - 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-    cv2.putText(image, f'Oran (K/Y): {ratio:.2f}', (10, image_height - 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+    draw.text((10, image.shape[0] - 4 * text_padding), f'HER2 Sinyal: {her2_signal_count}', font=font, fill=(0, 255, 0))
+    draw.text((10, image.shape[0] - 3 * text_padding), f'CEP17 Sinyal: {cep17_signal_count}', font=font, fill=(0, 255, 0))
+    draw.text((10, image.shape[0] - 2 * text_padding), f'Oran (HER2/CEP17): {ratio:.2f}', font=font, fill=(0, 255, 0))
+    draw.text((10, image.shape[0] - text_padding), group, font=font, fill=(0, 255, 0))
+
+    # PIL görüntüsünü OpenCV formatına çevir
+    image = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
 
     # Sonuçları yazdırma
-    print(f"Kırmızı sinyal sayısı: {red_signal_count}")
-    print(f"Yeşil sinyal sayısı: {green_signal_count}")
-    print(f"Oran (Kırmızı/Yeşil): {ratio:.2f}")
+    print(f"Hücre başına HER2 sinyal sayısı: {her2_signal_count}")
+    print(f"Hücre başına CEP17 sinyal sayısı: {cep17_signal_count}")
+    print(f"Hücre başına HER2/CEP17 oranı: {ratio:.2f}")
+    print(f"Grup: {group}")
 
     # Yeni dosya ismi oluşturma
     output_image_path = os.path.join(image_dir, f"{image_name}_count_output{image_ext}")
