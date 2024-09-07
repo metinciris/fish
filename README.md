@@ -58,6 +58,8 @@ pip install opencv-python numpy pillow
 - **HER2/CEP17 Oranı:** 1.75
 - **Grup:** Grup 2: HER2/CEP17 oranı ≥ 2.0; < 4.0 HER2 sinyali/hücre
 
+Bu linkteki örnek resim üzerinde değerlendirme yapabilirsiniz: https://forum.image.sc/t/fish-cell-detection-subcellular-detection/70319/6
+
 ## Lisans
 
 Bu proje MIT Lisansı ile lisanslanmıştır. Detaylar için [LICENSE](./LICENSE) dosyasına göz atabilirsiniz.
